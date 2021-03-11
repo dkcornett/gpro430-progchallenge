@@ -27,6 +27,8 @@
 
 namespace gproNet
 {
+	
+
 	cRakNetServer::cRakNetServer()
 	{
 		RakNet::SocketDescriptor sd(SET_GPRO_SERVER_PORT, 0);
@@ -68,7 +70,7 @@ namespace gproNet
 			// server receives greeting, print it and send one back
 			RakNet::BitStream bitstream_w;
 			ReadTest(bitstream);
-			WriteTest(bitstream_w, "Hello client from server");
+			WriteTest(bitstream_w, "Hello client from server.\n  Please select a game from the list!\n Games available:\n");
 			peer->Send(&bitstream_w, MEDIUM_PRIORITY, UNRELIABLE_SEQUENCED, 0, sender, false);
 		}	return true;
 

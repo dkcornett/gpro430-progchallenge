@@ -119,6 +119,8 @@ namespace gproNet
 		//	Unpack and process packets.
 		//		return: number of messages processed
 		int MessageLoop();
+
+	
 	};
 
 }

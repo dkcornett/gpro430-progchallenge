@@ -30,7 +30,7 @@ namespace gproNet
 	cRakNetClient::cRakNetClient()
 	{
 		RakNet::SocketDescriptor sd;
-		char SERVER_IP[16] = "127.0.0.1";
+		char SERVER_IP[16] = "172.16.2.59";
 
 		peer->Startup(1, &sd, 1);
 		peer->SetMaximumIncomingConnections(0);
@@ -75,6 +75,10 @@ namespace gproNet
 			RakNet::BitStream bitstream_w;
 			WriteTest(bitstream_w, "Hello server from client");
 			peer->Send(&bitstream_w, MEDIUM_PRIORITY, UNRELIABLE_SEQUENCED, 0, sender, false);
+
+			//direct client to appropriate server
+			//master server is default
+			//but player needs to be redirected when choosing a game
 		}	return true;
 
 			// test message

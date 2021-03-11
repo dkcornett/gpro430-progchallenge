@@ -23,7 +23,22 @@
 */
 
 #include "gpro-net/gpro-net/gpro-net-RakNet.hpp"
+#include "gpro-net/gpro-net/gpro-net-util/gpro-net-gamestate.h"
 
+struct serverList
+{
+	int numServers;
+
+};
+
+struct gameServer
+{
+	//value for gamestate read in
+	bool isOnline;
+	bool isFull;
+	int maxPlayers;
+	int numPlayers;
+};
 
 namespace gproNet
 {
