@@ -29,6 +29,8 @@ namespace gproNet
 {
 	cRakNetClient::cRakNetClient()
 		: index(-1)
+		//responsible for managing 16 of 128 agents
+		//	-> our "agent range" = [i * 16, (i + 1) * 16]
 	{
 		RakNet::SocketDescriptor sd;
 		char SERVER_IP[16] = "127.0.0.1";

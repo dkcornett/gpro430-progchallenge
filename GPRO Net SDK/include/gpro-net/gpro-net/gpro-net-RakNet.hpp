@@ -45,6 +45,9 @@ namespace gproNet
 	enum eSettings
 	{
 		SET_GPRO_SERVER_PORT = 7777,
+		SET_GPRO_MAX_CLIENTS = 128,
+		SET_GPRO_AGENTS_PER_CLIENT = 16,
+		SET_GPRO_MAX_AGENTS = SET_GPRO_MAX_CLIENTS * SET_GPRO_AGENTS_PER_CLIENT,	//128
 	};
 
 
@@ -60,6 +63,32 @@ namespace gproNet
 	};
 
 
+	// sSimulationAgent
+	// Boids agent.
+	struct sSimulationAgent
+	{
+		short ownerID, agentID;
+		float position[3];	// current state
+		float velocity[3];	// integrates into position
+		float acceleration[3];	// integrates into velocity
+		float force[3];	//total of cohesion, alignment, separation
+		
+		static RakNet::BitStream& Write(RakNet::BitStream& bitstream, sSimulationAgent const& obj)
+			//RakNet::BitStream& Write(RakNet::BitStream& bitstream);
+		{
+
+			// done
+			return bitstream;
+		}
+		static RakNet::BitStream& Read(RakNet::BitStream& bitstream, sSimulationAgent& obj)
+			//RakNet::BitStream& Read(RakNet::BitStream& bitstream);
+		{
+
+			//done
+			return bitstream;
+		}
+	};
+
 	// cRakNetManager
 	//	Base class for RakNet peer management.
 	class cRakNetManager abstract
@@ -69,6 +98,16 @@ namespace gproNet
 		// peer
 		//	Pointer to RakNet peer instance.
 		RakNet::RakPeerInterface* peer;
+
+		//agents
+		//array of agents in the simulation
+		// 2D array() : 
+		// major index = client id [0,8)
+		// minor index = agent id [0,16)
+		sSimulationAgent agents[SET_GPRO_MAX_CLIENTS][SET_GPRO_AGENTS_PER_CLIENT];
+		// 1D array ()
+		// our agent range = [ i * 16, (i+1) * 16)
+	//	sSimulationAgent agents[SET_GPRO_MAX_CLIENTS];
 
 		// protected methods
 	protected:
