@@ -22,8 +22,140 @@
 	Source for RakNet client management.
 */
 
+#include <vector>
 #include "gpro-net/gpro-net-client/gpro-net-RakNet-Client.hpp"
 
+
+struct sSpatialPose
+{
+	float scale[3];     // non-uniform scale
+	float rotate[3];    // orientation as Euler angles
+	float translate[3]; // translation
+
+	float spacialValues[9];		//all values of above arrays in one array
+	float newSpacialValues[9];		//new version of SpacialValues to compare to last version	
+
+	vector <int> changes;
+
+
+	//when reading the changes vector also change the spacialValues array to the values of newSpatialValues, 
+	//which will no longer be new once we get another packet with a more changes<>
+	void ValuesCompare()
+	{
+		for (int i = 0; i < 9; i++)
+		{
+			if (spacialValues[i] != newSpacialValues[i])
+			{
+				changes.add(i);
+				changes.add(newSpacialValues[i]);
+			}
+
+		}
+	}
+	
+	//with new changes<>, change the data in newSpacialValues()
+	void ChangeValues()
+	{
+		//for every 2 elements, take the value of the second and place into index of the first in spacialValues[]
+		for (int i = 0; i < changes.length(); i += 2)
+		{
+			newSpacialValues[i] = changes.at(i + 1);
+
+		}
+
+		for (int i = 0; i < 9; i++)
+		{
+			spacialValues[i] = newSpacialValues[i];
+		}
+
+		UpdateLocationData();
+
+
+	}
+
+	//the function that actually changes location data for the struct
+	//separate from ChangeValues() note the objects can be moved other ways than from data incoming from server
+	void UpdateLocationData()
+	{
+		//change scale array
+		scale[0] = spacialValues[0];
+		scale[1] = spacialValues[1];
+		scale[2] = spacialValues[2];
+		//change rotation array
+		rotate[0] = spacialValues[0];
+		rotate[1] = spacialValues[1];
+		rotate[2] = spacialValues[2];
+		//change translation array
+		translate[0] = spacialValues[0];
+		translate[1] = spacialValues[1];
+		translate[2] = spacialValues[2];
+
+	}
+
+	//for compression and decompresion we are clamping to a certain level of accuracy
+
+	//THIS IS AN EXAMPLE OF THE SIMPLEST TYPE OF THIS CONVERSION
+
+	//make the float input an int 
+	int compress(float input)
+	{
+		int compression = int(input * 1000.0f);
+		return compression;
+	}
+
+	//make the int input a float
+	float decompress(int input)
+	{
+		float decompression = input * 0.001f;
+		return decompression;
+	}
+
+	// read from stream
+	RakNet::BitStream& Read(RakNet::BitStream& bitstream)
+	{
+		/*
+		bitstream.Read(scale[0]);
+		bitstream.Read(scale[1]);
+		bitstream.Read(scale[2]);
+		bitstream.Read(rotate[0]);
+		bitstream.Read(rotate[1]);
+		bitstream.Read(rotate[2]);
+		bitstream.Read(translate[0]);
+		bitstream.Read(translate[1]);
+		bitstream.Read(translate[2]);*/
+
+	
+		bitstream.Read(changes);		//recieve list of changes
+		
+		ChangeValues();					//actually change the values according to the data we just took
+	
+
+		
+
+		return bitstream;
+	}
+
+	// write to stream
+	RakNet::BitStream& Write(RakNet::BitStream& bitstream) const
+	{
+	/*	bitstream.Write(scale[0]);
+		bitstream.Write(scale[1]);
+		bitstream.Write(scale[2]);
+		bitstream.Write(rotate[0]);
+		bitstream.Write(rotate[1]);
+		bitstream.Write(rotate[2]);
+		bitstream.Write(translate[0]);
+		bitstream.Write(translate[1]);
+		bitstream.Write(translate[2]);*/	//DO THIS PART OUTSIDE OF STRUCT, ONLY WRITE THE CHANGES TO BITSTREAM
+
+		ValuesCompare();				//take differences between this location data and last pass, 
+										//and put those values into the correct slots in changes<>
+		
+		bitstream.Write(changes);		//write the changes<> from this pass
+
+		return bitstream;
+	}
+};
 
 namespace gproNet
 {
